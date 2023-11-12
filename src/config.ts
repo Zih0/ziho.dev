@@ -4,7 +4,7 @@ export const SITE: Site = {
   website: "https://astro-paper.pages.dev/",
   author: "ziho",
   desc: "개발 기록",
-  title: "hozi-dev",
+  title: "ziho.dev",
   ogImage: "astropaper-og.jpg", // TODO: ogImage 변경
   lightAndDarkMode: true,
   postPerPage: 3,
@@ -34,7 +34,7 @@ export const SOCIALS: SocialObjects = [
   },
   {
     name: "Mail",
-    href: "mailto:ziho-dev@gmail.com",
+    href: "mailto:ziho.dev@gmail.com",
     linkTitle: `Send an email to ${SITE.title}`,
     active: false,
   },
