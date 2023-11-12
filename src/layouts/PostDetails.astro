@@ -6,6 +6,8 @@ import Tag from "@components/Tag.astro";
 import Datetime from "@components/Datetime";
 import type { CollectionEntry } from "astro:content";
 import { slugifyStr } from "@utils/slugify";
+import { Comments } from "@components/Comments";
+import Hr from "@components/Hr.astro";
 
 export interface Props {
   post: CollectionEntry<"blog">;
@@ -51,11 +53,15 @@ const ogUrl = new URL(
     <article id="article" role="article" class="prose mx-auto mt-8 max-w-3xl">
       <Content />
     </article>
-
     <ul class="tags-container">
       {tags.map(tag => <Tag name={slugifyStr(tag)} />)}
     </ul>
+    <Hr />
+    <div class="my-4">
+      <Comments client:idle />
+    </div>
   </main>
+
   <Footer />
 </Layout>
 
