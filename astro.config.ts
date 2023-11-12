@@ -9,9 +9,6 @@ import remarkToc from "remark-toc";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeSlug from "rehype-slug";
 import rehypeAutoLinkHeadings from "rehype-autolink-headings";
-import type { Build } from "rehype-autolink-headings";
-
-import { createMdxElement } from "./src/utils/mdx/createMDXElement";
 
 // https://astro.build/config
 export default defineConfig({
