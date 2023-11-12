@@ -91,6 +91,32 @@ after selector를 이용해서 아이콘을 넣어줬어요.
 [rehypeExternalLinks, { target: "_blank", rel: "noopener noreferrer" }];
 ```
 
+#### giscus
+
+블로그에 댓글 기능을 추가하기 위해 giscus를 사용합니다. github의 discussions를 이용해서 댓글 기능을 만들어주는 라이브러리에요.
+
+[공식문서](https://giscus.app/ko)에 사용법이 자세하게 나와있어서 쉽게 적용할 수 있습니다!
+
+Astro에서는 `client:load, idle, visible, media, only` 를 통해 프레임워크가 hydration 하는 방식을 조정할 수 있습니다. 댓글은 포스트의 맨 밑에 있으니까 idle로 불러오도록 설정했습니다.
+
+```tsx
+// Comments.tsx
+import Giscus from "@giscus/react";
+
+export function Comments() {
+  return (
+    <Giscus
+      id="Comments"
+      ...
+    />
+  );
+}
+
+// PostDetail.astro
+
+<Comments client:idle />
+```
+
 ---
 
 당장은 이정도만으로도 충분한 것 같아보이고, 앞으로 계속 추가해나갈 생각입니다.
