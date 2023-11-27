@@ -1,11 +1,11 @@
 import type { Site, SocialObjects } from "./types";
 
 export const SITE: Site = {
-  website: "https://astro-paper.pages.dev/",
+  website: "https://ziho.dev",
   author: "ziho",
   desc: "개발 기록",
   title: "ziho.dev",
-  ogImage: "astropaper-og.jpg", // TODO: ogImage 변경
+  ogImage: "og.svg",
   lightAndDarkMode: true,
   postPerPage: 3,
 };
@@ -13,7 +13,7 @@ export const SITE: Site = {
 export const LOCALE = ["ko-KR"];
 
 export const LOGO_IMAGE = {
-  enable: false,
+  enable: true,
   svg: true,
   width: 216,
   height: 46,
