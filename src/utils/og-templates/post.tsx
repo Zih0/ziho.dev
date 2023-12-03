@@ -17,7 +17,7 @@ export default (post: CollectionEntry<"blog">) => {
       <p
         style={{
           color: "#fff",
-          fontSize: 30,
+          fontSize: 72,
           fontWeight: "bold",
           maxHeight: "84%",
           overflow: "hidden",
