@@ -2,8 +2,8 @@ import { defineConfig } from "astro/config";
 import tailwind from "@astrojs/tailwind";
 import react from "@astrojs/react";
 import sitemap from "@astrojs/sitemap";
+import partytown from "@astrojs/partytown";
 import { SITE } from "./src/config";
-
 import mdx from "@astrojs/mdx";
 import remarkToc from "remark-toc";
 import rehypeExternalLinks from "rehype-external-links";
@@ -29,6 +29,11 @@ export default defineConfig({
     }),
     react(),
     sitemap(),
+    partytown({
+      config: {
+        forward: ["dataLayer.push"],
+      },
+    }),
     mdx(),
   ],
   markdown: {
