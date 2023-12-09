@@ -164,6 +164,28 @@
   pre > code {
     white-space: pre;
   }
+
+  pre {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  pre [data-line] {
+    border-left-width: 2px;
+    border-left-color: #0000;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  [data-highlighted-line] {
+    background: #c8c8ff1a;
+  }
+
+  [data-highlighted-chars] {
+    border-radius: 0.25rem;
+    background-color: #52525b80;
+    box-shadow: 0 0 0 4px #52525b80;
+  }
 }
 
 @layer components {
