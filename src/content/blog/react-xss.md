@@ -12,7 +12,7 @@ tags:
 description: React에서 console.log(<App />)를 하면 어떻게 로그가 남을까요?
 ---
 
-React에서 `console.log(<Component />)` 를 하면 어떻게 로그가 남을까요?
+React에서 `console.log(<App />)` 를 하면 어떻게 로그가 남을까요?
 
 ```jsx
 import React from "react";
