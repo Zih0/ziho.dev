@@ -17,10 +17,6 @@ const featuredPosts = sortedPosts.filter(({ data }) => data.featured);
 <Layout>
   <Header />
   <main id="main-content">
-    <section id="hero">
-      <h1 class="mr-2">ziho</h1>
-    </section>
-    <Hr />
     {
       featuredPosts.length > 0 && (
         <>
