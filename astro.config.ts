@@ -40,7 +40,7 @@ export default defineConfig({
     syntaxHighlight: false,
     remarkPlugins: [remarkToc],
     rehypePlugins: [
-      [rehypePrettyCode, prettyCodeOption],
+      [rehypePrettyCode as RehypePrettyCodeType, prettyCodeOption],
       rehypeSlug,
       rehypeAutoLinkHeadings,
       [rehypeExternalLinks, { target: "_blank", rel: "noopener noreferrer" }],
@@ -53,3 +53,8 @@ export default defineConfig({
   },
   scopedStyleStrategy: "where",
 });
+
+// FIXME: astro v4 rehypePlugin type이 변경되면서 깨지는 현상 발생
+type RehypePrettyCodeType = (
+  options?: Parameters<typeof rehypePrettyCode>[0]
+) => undefined;
