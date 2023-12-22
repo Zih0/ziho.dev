@@ -9,16 +9,8 @@ import remarkToc from "remark-toc";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeSlug from "rehype-slug";
 import rehypeAutoLinkHeadings from "rehype-autolink-headings";
-import rehypePrettyCode, {
-  type Options as PrettyCodeOptions,
-} from "rehype-pretty-code";
-import moonlightTheme from "./public/code-block-theme/moonlight-ii.json" assert { type: "json" };
-
-const prettyCodeOption: PrettyCodeOptions = {
-  // note: Options['theme'] 타입이 CustomTheme을 제대로 지원안함
-  // @ts-ignore
-  theme: moonlightTheme,
-};
+import rehypePrettyCode from "rehype-pretty-code";
+import moonlightTheme from "./public/code-block-theme/moonlight-ii.json";
 
 // https://astro.build/config
 export default defineConfig({
@@ -40,7 +32,12 @@ export default defineConfig({
     syntaxHighlight: false,
     remarkPlugins: [remarkToc],
     rehypePlugins: [
-      [rehypePrettyCode as RehypePrettyCodeType, prettyCodeOption],
+      [
+        rehypePrettyCode as RehypePrettyCodeType,
+        {
+          theme: moonlightTheme,
+        },
+      ],
       rehypeSlug,
       rehypeAutoLinkHeadings,
       [rehypeExternalLinks, { target: "_blank", rel: "noopener noreferrer" }],
