@@ -142,6 +142,8 @@
 
   /* ===== scrollbar ===== */
   html {
+    @apply scroll-smooth;
+
     overflow-y: scroll;
   }
 
