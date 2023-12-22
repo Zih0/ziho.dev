@@ -257,11 +257,10 @@ v1 에서는 properties에 메타데이터 `title`과 `theme`이 들어가있었
 왜냐하면 MDX v2부터는 `{}` 를 JSX처럼 JS 표현식으로 인식하여 `something`을 변수로 받아들이기 때문입니다.
 
 ```mdx
-as-is
+// as-is
 GET /post/{id}
 
-to-be
-
+// to-be
 GET /post/\{id\}
 ```
 
@@ -298,7 +297,7 @@ prettier v2.5.0보다 낮은 버전을 쓰고 있다면 MDX에서 아래 방식�
 // as-is
 {/* 주석 */}
 
-// to-be formatted
+// to-be formatted 🫠
 {_/ 주석 /_}
 ```
 
