@@ -17,9 +17,6 @@ dependencies:
   '@astrojs/rss':
     specifier: ^4.0.1
     version: 4.0.1
-  '@fontsource-variable/noto-sans-kr':
-    specifier: ^5.0.3
-    version: 5.0.3
   '@giscus/react':
     specifier: ^2.3.0
     version: 2.3.0(react-dom@18.2.0)(react@18.2.0)
@@ -1145,10 +1142,6 @@ packages:
     resolution: {integrity: sha512-JUFJad5lv7jxj926GPgymrWQxxjPYuJNiNjNMzqT+HiuP6Vl3dk5xzG+8sTX96np0ZAluvaMzPsjhHZ5rNuNQQ==}
     engines: {node: '>=14'}
     dev: true
-
-  /@fontsource-variable/noto-sans-kr@5.0.3:
-    resolution: {integrity: sha512-Mjd+5Cr728QUjelv7JDAJHHq7LZhLbA9C13jMCDl42zNTpuTnNwpNUjpCxdmvxEXwofa6oaTVihPZgySm4/L5w==}
-    dev: false
 
   /@giscus/react@2.3.0(react-dom@18.2.0)(react@18.2.0):
     resolution: {integrity: sha512-tj79B+NNBfidhPdXJqWoqRm5Jhoc6CBhXMYwBR9nwTwsrdaB/spcQXmHpKcUuOdXZtlYSwMfCFcBogMNbD+gKQ==}
