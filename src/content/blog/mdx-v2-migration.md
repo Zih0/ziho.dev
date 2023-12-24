@@ -290,7 +290,6 @@ jest 이외에도 Next.js + yarn PnP 를 사용함에 있어서 ESM Only 라이�
 
 ### prettier
 
-prettier v2.5.0보다 낮은 버전을 쓰는 경우
 prettier v2.5.0보다 낮은 버전을 쓰고 있다면 MDX에서 아래 방식을 자동으로 포맷팅해서 주석 처리가 정상적으로 동작하지 않습니다.
 
 ```mdx
