@@ -5,7 +5,6 @@ import sitemap from "@astrojs/sitemap";
 import partytown from "@astrojs/partytown";
 import { SITE } from "./src/config";
 import mdx from "@astrojs/mdx";
-import remarkToc from "remark-toc";
 import rehypeExternalLinks from "rehype-external-links";
 import rehypeSlug from "rehype-slug";
 import rehypeAutoLinkHeadings from "rehype-autolink-headings";
@@ -30,10 +29,9 @@ export default defineConfig({
   ],
   markdown: {
     syntaxHighlight: false,
-    remarkPlugins: [remarkToc],
     rehypePlugins: [
       [
-        rehypePrettyCode as RehypePrettyCodeType,
+        rehypePrettyCode,
         {
           theme: moonlightTheme,
         },
@@ -50,8 +48,3 @@ export default defineConfig({
   },
   scopedStyleStrategy: "where",
 });
-
-// FIXME: astro v4 rehypePlugin type이 변경되면서 깨지는 현상 발생
-type RehypePrettyCodeType = (
-  options?: Parameters<typeof rehypePrettyCode>[0]
-) => undefined;
