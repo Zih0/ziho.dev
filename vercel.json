@@ -19,7 +19,7 @@
           ]
         },
         {
-            "source": "[a-z0-9]{8}\\.(woff|woff2)",
+            "source": "(.*).(woff|woff2)",
             "headers" : [
               {
                 "key" : "Cache-Control",
