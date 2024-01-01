@@ -7,7 +7,7 @@ export const SITE: Site = {
   title: "ziho.dev",
   ogImage: "og.svg",
   lightAndDarkMode: true,
-  postPerPage: 3,
+  postPerPage: 6,
 };
 
 export const LOCALE = ["ko-KR"];
