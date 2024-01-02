@@ -1,0 +1,36 @@
+---
+import { Image } from "astro:assets";
+import OpenGraphScraper from "open-graph-scraper";
+
+interface Props {
+  url: string;
+}
+const { url } = Astro.props;
+const { result } = await OpenGraphScraper({
+    url,
+  });
+
+const { ogTitle, ogDescription, ogImage, ogUrl } = { ...result, ogImage: result.ogImage?.[0] };
+const ogUrlOrigin = new URL(ogUrl ?? '').origin.replace(/http(s):\/\//, '');
+---
+
+<div class="not-prose overflow-hidden rounded-lg border-solid border-gray-300 border-2 w-full h-28">
+  <a
+    class="flex  justify-between items-center bg-white no-underline w-full h-full"
+    href={url}
+    target="_blank"
+    rel="noreferer noopener"
+  >
+  <div class="flex flex-col gap-1 p-4 overflow-hidden">
+    <h1 class="text-lg font-bold text-black">{ogTitle}</h1>
+    <p class="text-sm text-gray-500 truncate">{ogDescription}</p>
+    <div class="flex gap-1">
+      <Image alt={`${ogTitle} favicon`} width={14} height={14} src={`https://www.google.com/s2/favicons?sz=14&domain_url=${ogUrl}`} />
+      <p class="text-xs text-black">{ogUrlOrigin}</p>
+    </div>
+  </div>
+  <div class="max-w-60 h-full">
+    {ogImage?.url && <img class="w-full h-full object-cover" alt={`${ogTitle} thumbnail`} src={ogImage.url} />}
+  </div>
+  </a>
+</div>
