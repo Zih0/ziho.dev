@@ -11,7 +11,7 @@ const { result } = await OpenGraphScraper({
   });
 
 const { ogTitle, ogDescription, ogImage, ogUrl } = { ...result, ogImage: result.ogImage?.[0] };
-const ogUrlOrigin = new URL(ogUrl ?? '').origin.replace(/http(s):\/\//, '');
+const ogUrlOrigin = new URL(ogUrl ?? url).origin.replace(/http(s):\/\//, '');
 ---
 
 <div class="not-prose overflow-hidden rounded-lg border-solid border-gray-300 border-2 w-full h-28">

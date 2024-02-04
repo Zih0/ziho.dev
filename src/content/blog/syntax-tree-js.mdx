@@ -1,0 +1,169 @@
+---
+author: ziho
+pubDatetime: 2024-02-04T13:45:11.171Z
+title: Syntax Tree (feat. JavaScript)
+postSlug: synax-tree-js
+featured: true
+draft: false
+tags:
+  - Compiler
+  - AST
+  - CST
+  - JavaScript
+description: 컴파일러 프론트엔드에서 사용되는 AST와 CST 개념에 대해 알아보고, JavaScript 생태계에서 어떻게 사용되는지 살펴봅니다.
+---
+
+import OGCard from '../../components/OGCard.astro'
+import DiagramImage from "../../assets/cst-ast.png";
+
+import { Image } from "astro:assets";
+
+Abstract Syntax Tree(AST)와 Concrete Syntax Tree(CST)에 대한 설명하려면 Language Compiler에 대한 설명을 하지 않을 수 없겠더라고요.
+
+그래서 간단하게 컴파일러에 대한 설명을 하고, JavaScript 생태계에서 AST와 CST는 어떻게 쓰이는지 예시를 통해 살펴보려고 해요.
+
+### 컴파일러
+
+컴파일러는 컴퓨터 프로그래밍 언어로 작성된 코드를 컴퓨터가 이해할 수 있는 언어로 변환하는 도구입니다. 컴파일러는 고급 언어로 작성된 소스 코드를 기계 언어로 번역하며, 이를 통해 작성된 프로그램이 실제로 실행될 수 있게 됩니다.
+
+### 컴파일러의 프론트엔드와 백엔드
+
+컴파일러는 크게 두 부분, 프론트엔드와 백엔드로 나눌 수 있습니다.
+
+- **프론트엔드**: 소스 코드를 분석하고 이해하는 부분으로, 코드의 구문과 의미를 검사합니다. 이 과정에서 프로그램의 구조를 이해하고, 코드의 오류를 찾아내는 역할을 합니다.
+- **백엔드**: 프론트엔드에서 처리된 코드를 받아서 최종적으로 기계가 이해할 수 있는 언어로 변환합니다. 이 단계에서는 최적화가 이루어지며, 실행 파일이 생성됩니다.
+
+### 컴파일러의 프론트엔드
+
+이번 글에 주제인 컴파일러의 프론트엔드에 대해서 더 자세하게 알아볼게요.
+컴파일러의 프론트엔드는 크게 세 단계로 나눌 수 있습니다.
+
+1. **어휘 분석(Lexical Analysis)**: 코드를 읽고, 의미 있는 기호(토큰)로 분리합니다. 예를 들어, '학교에 갑니다.'라는 문장을 '학교', '에', '갑니다', '.'로 나누는 것과 비슷합니다.
+2. **구문 분석(Syntax Analysis)**: 토큰들의 구조를 파악하여 이들이 언어의 문법에 맞게 구성되어 있는지 검사합니다. 마치 문장이 올바른 문법으로 구성되어 있는지 확인하는 과정입니다.
+3. **의미 분석(Semantic Analysis)**: 토큰들이 문법적으로는 올바르지만, 의미적으로 모순되거나 잘못된 부분이 없는지 검사합니다. 예를 들어 변수의 정의, 타입의 일치성, 표현식의 유효성 등 프로그램의 의미적인 측면을 검사합니다.
+
+### AST와 CST
+
+구문 분석에서 코드를 읽고, 그 구조를 파악하여 트리 형태로 구성합니다.
+트리는 아래의 두가지 형태로 나눌 수 있습니다.
+
+- **AST**: 소스 코드의 구조를 나타내는 트리 구조로, 코드의 구문적 구조를 간략화하여 표현합니다. 즉, 중요한 연산과 피연산자만을 포함하여 코드의 의미를 명확하게 나타냅니다.
+- **CST**: 소스 코드의 구문적 구조를 완전하게 나타내는 트리입니다. 여기에는 괄호, 주석, 띄어쓰기, 탭 등 코드 내의 모든 세부사항이 포함됩니다.
+
+### AST와 CST의 차이점
+
+AST와 CST의 가장 큰 차이점은 '추상화'의 정도입니다. AST는 불필요한 정보를 제거하여 코드의 구조를 간략화한 반면, CST는 코드의 모든 세부 사항을 포함합니다. 이를 자바스크립트 코드 예시로 살펴보겠습니다.
+
+```js
+let x = 0;
+if (x) x++;
+```
+
+CST는 다음과 같은 구조를 가집니다.
+
+```yaml
+- Program
+  - ExpressionStatement
+    - AssignmentExpression
+      - Identifier
+        - Identifier 'x'
+      - Whitespace ' '
+      - Punctuator '='
+      - Whitespace ' '
+      - Literal
+        - Numeric '0'
+    - Punctuator ';'
+  - Whitespace '\n'
+  - IfStatement
+    - Keyword 'if'
+    - Whitespace ' '
+    - Punctuator '('
+    - Identifier
+	  - Identifier 'x'
+    - Punctuator ')'
+    - WhiteSpace ''
+    - ExpressionStatement
+      - UpdateExpression
+        - Identifier
+          - Identifier 'x'
+        - Punctuator '++'
+      - Punctuator ';'
+```
+
+여기서는 괄호, 탭, 띄어쓰기, 세미콜론까지 모든 것이 명시되어 있습니다.
+
+AST는 다음과 같은 구조를 가집니다.
+
+```yaml
+- Program
+  - VariableDeclaration
+    - VariableDeclarator
+      - Identifier
+        - name 'x'
+      - NumericLiteral
+        - value '0'
+  - IfStatement
+    - Identifier
+	  - name 'x'
+    - ExpressionStatement
+      - UpdateExpression
+        - operator '++'
+        - Identifier
+          - name 'x'
+```
+
+CST 구조에서는 연산의 중요성에 따라 계층이 구성되며, 괄호, 띄어쓰기와 같은 불필요한 정보는 생략됩니다.
+
+ <Image
+    alt="CST And AST"
+    src={DiagramImage}
+    fill
+    priority
+    className="!m-0 rounded-lg object-cover"
+/>
+(출처: https://github.com/cst/cst?tab=readme-ov-file)
+
+[ASTExplorer](https://astexplorer.net)에서 실시간으로 JavaScript 코드가 어떻게 AST로 바뀌는지 확인할 수 있습니다.
+
+<OGCard url="https://www.astexplorer.net/" />
+
+### Syntax Tree 활용
+
+이렇게 소스코드를 기계어로 변경하는 것 뿐만 아니라, 우리는 이 Syntax Tree를 다른 방면으로도 활용할 수 있습니다.
+
+1. **Transpiler**
+
+   Transpiler는 한 버전의 JavaScript를 다른 버전으로 변환하는 데 사용됩니다. 예를 들어, Babel은 최신 JavaScript(ES6 이상) 코드를 오래된 브라우저에서도 호환되는 ES5로 변환합니다.
+   이 때 Babel은 소스 코드를 먼저 **AST**로 변환합니다. 트랜스파일러는 이 트리를 순회하며 필요한 변환을 수행합니다. 예를 들어, 화살표 함수를 일반 함수로 바꾸거나, `let`과 `const`를 `var`로 변환하는 등의 작업이 이 단계에서 이루어집니다. 변환 작업이 완료된 후, 새로운 AST는 다시 코드로 출력되어 결과적으로 변환된 소스 코드를 얻습니다.
+
+2. **Linter**
+
+   Linter는 코드의 오류를 찾고, 일관된 코딩 스타일을 유지하도록 도와주는 도구입니다. 대표적으로 ESLint가 있습니다.
+   ESLint 또한 소스 코드를 **AST**로 변환하고, 이 트리를 순회하면서 각 노드의 유형과 속성을 검사합니다. 이를 통해 Linter는 미사용 변수, 중복 선언, 잘못된 구문 사용 등의 문제를 발견하고, 코딩 스타일이 일관된 규칙에 따라 작성되었는지 확인합니다. AST를 기반으로 코드의 구조와 패턴을 분석하므로, 매우 정밀한 검사가 가능합니다.
+
+3. **Formatter**
+
+   Formatter는 코드를 일관된 스타일로 재구성하여 가독성을 높여줍니다. 대표적으로 Prettier가 있습니다.
+   Prettier도 코드를 **AST**로 파싱합니다. 이후, 이 AST를 기반으로 코드를 재구성하며, 일관된 스타일로 코드를 포맷팅합니다. Formatter는 AST를 수정하지 않고, AST를 사용해 원본 코드의 구조를 이해한 후, 이 구조에 맞게 새로운 코드를 생성합니다. 이 과정에서 들여쓰기, 줄바꿈, 공백 등 코드의 스타일을 조정하여, 읽기 쉽고 일관된 코드를 생성합니다.
+
+그런데 소개한 3개의 도구는 모두 AST만을 사용하네요. CST로는 위의 도구를 만들 수 없는걸까요? 아닙니다. 요즘 떠오르고 있는 [Biome](https://biomejs.dev/internals/architecture/)은 CST를 사용해서 Formatter와 Linter를 만들었어요. 각각의 도구가 지향하는 방향에 따라 AST, CST를 활용하고 있습니다.
+
+### 마치며
+
+전공 수업으로 들었을 때는 시험을 위한 공부를 했었던 기억이 나네요.
+하지만 이번에 Syntax Tree에 대해 다시 알아보고, JavaScript 생태계에서는 어떻게 활용하는지 알고 나니 멀게만 느껴졌던 개념과 도구들이 조금은 가까워진 것 같습니다. :)
+
+[ESLint와 AST로 코드 퀄리티 높이기](https://toss.tech/article/improving-code-quality-via-eslint-and-ast) 글에선 실제로 토스에서 쓰고 있는 custom eslint rule에 대해 설명하고 있어요.
+이 글도 같이 읽어보면 도움이 될 것 같아요.
+
+---
+
+참고
+
+<OGCard url="https://github.com/estree/estree" />
+<br />
+<OGCard url="https://github.com/cst/cst" />
+<br />
+<OGCard url="https://biomejs.dev/internals/architecture/" />
+<br />
+<OGCard url="https://medium.com/basecs/leveling-up-ones-parsing-game-with-asts-d7a6fc2400ff" />
