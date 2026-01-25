@@ -1,10 +1,10 @@
 'use client'
 
 import { useEffect, useRef, useState, useMemo } from 'react'
-import { useRouter } from 'next/navigation'
 import type * as d3Types from 'd3'
 import type { Post } from '@/types/post'
 import type { GraphNode, GraphLink } from '@/types/graph'
+import { PostPreviewDrawer } from './PostPreviewDrawer'
 
 interface GraphViewProps {
   posts: Post[]
@@ -13,7 +13,6 @@ interface GraphViewProps {
 }
 
 export function GraphView({ posts, initialNodes, initialLinks }: GraphViewProps) {
-  const router = useRouter()
   const svgRef = useRef<SVGSVGElement>(null)
   const tooltipRef = useRef<HTMLDivElement>(null)
   const simulationRef = useRef<d3Types.Simulation<GraphNode, undefined> | null>(null)
@@ -32,6 +31,8 @@ export function GraphView({ posts, initialNodes, initialLinks }: GraphViewProps)
   const [viewMode, setViewMode] = useState<'physical' | 'semantic'>('physical')
   const [gravity, setGravity] = useState(-400)
   const [linkDist, setLinkDist] = useState(120)
+  const [selectedPost, setSelectedPost] = useState<Post | null>(null)
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false)
 
   const categories = useMemo(() => {
     return Array.from(new Set(posts.map(p => p.category)))
@@ -153,13 +154,38 @@ export function GraphView({ posts, initialNodes, initialLinks }: GraphViewProps)
 
     simulationRef.current = simulation
 
+    // Edge gradient definition for visual depth
+    const defs = svg.append('defs')
+
+    const edgeGradient = defs.append('linearGradient')
+      .attr('id', 'edge-gradient')
+      .attr('gradientUnits', 'userSpaceOnUse')
+
+    edgeGradient.append('stop')
+      .attr('offset', '0%')
+      .attr('stop-color', '#3b82f6')
+      .attr('stop-opacity', 0.6)
+
+    edgeGradient.append('stop')
+      .attr('offset', '50%')
+      .attr('stop-color', '#60a5fa')
+      .attr('stop-opacity', 0.3)
+
+    edgeGradient.append('stop')
+      .attr('offset', '100%')
+      .attr('stop-color', '#3b82f6')
+      .attr('stop-opacity', 0.6)
+
     const link = g
       .append('g')
-      .attr('stroke', 'rgba(255,255,255,0.03)')
-      .attr('stroke-width', 1)
+      .attr('class', 'links')
       .selectAll('line')
       .data(linksCopy)
       .join('line')
+      .attr('stroke', 'url(#edge-gradient)')
+      .attr('stroke-width', 1.5)
+      .attr('stroke-linecap', 'round')
+      .style('filter', 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.3))')
 
     const node = g
       .append('g')
@@ -189,10 +215,34 @@ export function GraphView({ posts, initialNodes, initialLinks }: GraphViewProps)
       .on('click', (event, d) => {
         event.stopPropagation()
         if (d.group === 'post') {
-          router.push(`/blog/${d.id}`)
+          const post = posts.find(p => p.slug === d.id)
+          if (post) {
+            setSelectedPost(post)
+            setIsDrawerOpen(true)
+          }
         }
       })
       .on('mouseover', (event, d) => {
+        // Highlight connected edges
+        link
+          .attr('stroke-width', l => {
+            const source = (l.source as GraphNode).id
+            const target = (l.target as GraphNode).id
+            return source === d.id || target === d.id ? 3 : 1.5
+          })
+          .attr('stroke', l => {
+            const source = (l.source as GraphNode).id
+            const target = (l.target as GraphNode).id
+            return source === d.id || target === d.id ? '#60a5fa' : 'url(#edge-gradient)'
+          })
+          .style('filter', l => {
+            const source = (l.source as GraphNode).id
+            const target = (l.target as GraphNode).id
+            return source === d.id || target === d.id
+              ? 'drop-shadow(0 0 6px rgba(96, 165, 250, 0.8))'
+              : 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.3))'
+          })
+
         tooltip.style('opacity', '1').html(`
           <div class="flex flex-col gap-1">
             <div class="flex items-center gap-2">
@@ -210,16 +260,24 @@ export function GraphView({ posts, initialNodes, initialLinks }: GraphViewProps)
           .style('top', event.pageY - 10 + 'px')
       })
       .on('mouseleave', () => {
+        // Reset edges
+        link
+          .attr('stroke-width', 1.5)
+          .attr('stroke', 'url(#edge-gradient)')
+          .style('filter', 'drop-shadow(0 0 2px rgba(59, 130, 246, 0.3))')
+
         tooltip.style('opacity', '0')
       })
 
     node
       .append('circle')
-      .attr('r', d => (d.group === 'post' ? 8 : 4))
-      .attr('fill', d => (d.group === 'post' ? '#3b82f6' : '#27272a'))
-      .attr('stroke', 'transparent')
-      .attr('stroke-width', 3)
-      .attr('class', 'transition-all duration-300 cursor-pointer hover:fill-white')
+      .attr('r', d => (d.group === 'post' ? 10 : 5))
+      .attr('fill', d => (d.group === 'post' ? '#3b82f6' : '#1e3a5f'))
+      .attr('stroke', d => (d.group === 'post' ? '#60a5fa' : '#3b82f6'))
+      .attr('stroke-width', d => (d.group === 'post' ? 2 : 1))
+      .attr('stroke-opacity', d => (d.group === 'post' ? 0.4 : 0.3))
+      .attr('class', 'transition-all duration-300 cursor-pointer')
+      .style('filter', d => (d.group === 'post' ? 'drop-shadow(0 0 8px rgba(59, 130, 246, 0.5))' : 'none'))
 
     node
       .append('text')
@@ -244,7 +302,7 @@ export function GraphView({ posts, initialNodes, initialLinks }: GraphViewProps)
     return () => {
       simulation.stop()
     }
-  }, [nodes, links, viewMode, selectedCategory, categories, gravity, linkDist, router, isD3Loaded])
+  }, [nodes, links, viewMode, selectedCategory, categories, gravity, linkDist, isD3Loaded, posts])
 
   useEffect(() => {
     if (simulationRef.current && d3Ref.current) {
@@ -419,6 +477,16 @@ export function GraphView({ posts, initialNodes, initialLinks }: GraphViewProps)
           </div>
         </div>
       </div>
+
+      {/* Post Preview Drawer */}
+      <PostPreviewDrawer
+        post={selectedPost}
+        isOpen={isDrawerOpen}
+        onClose={() => {
+          setIsDrawerOpen(false)
+          setTimeout(() => setSelectedPost(null), 300)
+        }}
+      />
     </div>
   )
 }
