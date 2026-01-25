@@ -1,6 +1,5 @@
 {
   "buildCommand": "pnpm run build",
-  "outputDirectory": "out",
   "headers": [
     {
       "source": "/(.*)",
