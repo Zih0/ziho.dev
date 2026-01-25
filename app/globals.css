@@ -1,0 +1,152 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-zinc-300 antialiased;
+  }
+
+  .bg-grid {
+    background-size: 40px 40px;
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  }
+
+  .glass {
+    background: rgba(18, 18, 20, 0.7);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  /* Enhanced prose styles for better readability */
+  .prose-reading {
+    @apply text-zinc-300 leading-relaxed;
+  }
+
+  .prose-reading p {
+    @apply text-[16px] md:text-[17px] leading-[1.8] md:leading-[1.9] mb-6;
+  }
+
+  .prose-reading h1,
+  .prose-reading h2,
+  .prose-reading h3,
+  .prose-reading h4 {
+    @apply text-zinc-300 scroll-mt-20;
+  }
+
+  .prose-reading h1 {
+    @apply text-2xl md:text-3xl font-bold mt-12 mb-6 tracking-tight;
+  }
+
+  .prose-reading h2 {
+    @apply text-xl md:text-2xl font-semibold mt-10 mb-4 tracking-tight;
+  }
+
+  .prose-reading h3 {
+    @apply text-lg md:text-xl font-semibold mt-8 mb-3;
+  }
+
+  .prose-reading h4 {
+    @apply text-base md:text-lg font-medium mt-6 mb-2;
+  }
+
+  .prose-reading a {
+    @apply text-zinc-300 hover:text-zinc-100 transition-colors;
+  }
+
+  .prose-reading strong {
+    @apply font-semibold text-zinc-200;
+  }
+
+  .prose-reading code:not(pre code) {
+    @apply bg-zinc-800/60 text-zinc-200 px-1.5 py-0.5 rounded text-[0.9em] font-mono;
+  }
+
+  .prose-reading pre {
+    @apply bg-zinc-900/80 border border-zinc-800 rounded-lg p-4 overflow-x-auto my-6;
+  }
+
+  .prose-reading pre code {
+    @apply text-sm leading-relaxed;
+  }
+
+  .prose-reading blockquote {
+    @apply border-l-2 border-zinc-700 pl-4 md:pl-6 my-6 text-zinc-400 italic;
+  }
+
+  .prose-reading ul, .prose-reading ol {
+    @apply my-4 pl-6;
+  }
+
+  .prose-reading li {
+    @apply mb-2 text-zinc-300;
+  }
+
+  .prose-reading ul li {
+    @apply list-disc;
+  }
+
+  .prose-reading ol li {
+    @apply list-decimal;
+  }
+
+  .prose-reading img {
+    @apply rounded-lg my-8 border border-zinc-800;
+  }
+
+  .prose-reading hr {
+    @apply border-zinc-800 my-10;
+  }
+
+  .prose-reading table {
+    @apply w-full my-6 text-sm;
+  }
+
+  .prose-reading th {
+    @apply text-left text-zinc-200 font-semibold py-2 px-3 border-b border-zinc-800;
+  }
+
+  .prose-reading td {
+    @apply py-2 px-3 border-b border-zinc-800/50;
+  }
+}
+
+@layer components {
+  ::-webkit-scrollbar {
+    @apply w-1;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-white/10 rounded-full;
+  }
+
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-out;
+}

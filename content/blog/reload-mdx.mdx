@@ -1,0 +1,196 @@
+---
+author: ziho
+pubDatetime: 2024-04-03T13:45:11.171Z
+title: Next.js MDX Hot Reload
+postSlug: reload-mdx-next
+featured: true
+draft: false
+tags:
+  - docs
+  - mdx
+  - next
+description: Next.js MDX의 변경을 감지하기
+---
+
+# next-mdx-remote
+
+Next.js는 함께 마크다운/MDX를 사용하는 방법에 대한 문서를 제공하고 있습니다.
+
+파일 기반 라우팅 시스템을 사용하여 `.mdx` 파일을 페이지에 1-1로 매핑할 수는 있지만 컨텐츠가 추가될 때마다 배포를 따로 해줘야하는 문제가 있습니다.
+
+컨텐츠의 변화가 잦은 프로젝트의 경우, `next-mdx-remote`를 통해 원격으로 MDX를 불러오는 것에 대해 고려해볼 수 있습니다.
+
+`next-mdx-remote`를 사용할 때, 일반적으로 production 환경에서는 S3같은 스토리지에 MDX 파일을 저장하고 개발 환경에서는 로컬 파일 시스템을 사용합니다.
+
+로컬에서 MDX 파일이 Next.js 프로젝트 내부에 존재하지 않기 때문에, 파일이 변경되었을 때 Next.js가 변경을 감지하지 못합니다.
+
+이러한 문제를 해결하기 위한 방법을 소개하려고 합니다.
+
+# next v10 이상 v12 이하
+
+## next dev로 실행하고 있는 경우
+
+현재 프로젝트의 next 버전이 10~12 사이라면, `next-remote-watch` 라이브러리가 해결책이 될 수 있습니다.
+
+`next-mdx-remote` 라이브러리를 만든 HashCorp 팀에서 만든 라이브러리로 로컬 파일 시스템의 변경을 감지하여 Next.js를 Reload 시켜주는 역할을 합니다.
+
+아래처럼 `next dev` 대신 `next-remote-watch`로 개발 서버를 실행하면 됩니다.
+
+```json
+"scripts": {
+-  "start": "next dev"
++  "start": "next-remote-watch ../로컬파일위치"
+}
+```
+
+## 커스텀 서버로 실행하고 있는 경우
+
+커스텀 서버로 Next.js를 실행하고 있는 경우는 각자의 커스텀 서버에 파일 변경을 감지하는 로직을 추가해야합니다.
+
+`next-remote-watch`의 소스코드를 참고하여 로컬 파일 시스템의 변경을 감지하는 로직을 추가하면 됩니다.
+
+chokidar 라이브러리를 사용하여 파일 변경을 감지하고, 변경이 감지되면 Next.js 서버의 hotReloader.send 메소드를 호출하여 Next.js 서버를 Reload 시켜줍니다.
+
+```js
+const express = require('express')
+const chokidar = require('chokidar')
+const next = require('next')
+
+// 이 부분은 next.js 커스텀 서버마다 설정이 다를 수 있기 때문에, 아래 chokidar로 파일 변경 감지하는 로직만 참고하시면 됩니다.
+const app = next({
+  dev: true,
+  port,
+  hostname,
+})
+const handle = app.getRequestHandler()
+
+const CONTENT_PATH = 로컬파일위치
+app.prepare().then(() => {
+    chokidar
+      .watch(CONTENT_PATH)
+      .on(
+        'change',
+        async () => {
+          // 주의! next.js의 server 프로퍼티는 next 13부터 private로 변경되었기 때문에, next 13 이상 버전에서는 이 방법을 사용할 수 없습니다.
+          app.server.hotReloader.send('building')
+          app.server.hotReloader.send('reloadPage')
+        }
+      )
+  }
+
+  ... // 커스텀 서버 설정들
+  const server = express()
+  server.all('*', (req, res) => handle(req, res, parse(req.url, true)))
+
+  server.listen(port, (err) => {
+    if (err) throw err
+    console.log(`> Ready on http://localhost:${port}`)
+  })
+})
+```
+
+# next v13 이상
+
+next 13 이상부터는 `nextApp.server`가 private로 변경되어서 `next-remote-watch` 라이브러리를 사용할 수도, 직접 `app.server.hotReloader.send` 메서드를 호출하는 방식도 사용할 수도 없습니다.
+
+nextApp의 HotReload를 직접 사용하지는 못하지만 비슷한 방식으로 문제를 해결할 수 있습니다.
+
+개발환경에서만 동작할 웹소켓 서버를 만들어서 파일 변경을 감지하고, 변경이 감지되면 웹소켓을 통해 클라이언트앱에 변경을 알려주는 방식입니다.
+
+우선 웹소켓 서버를 만들어서 파일 변경을 감지합니다.
+
+`watch-contents.js` 파일을 아래처럼 만들게요.
+
+```js
+const { WebSocketServer } = require('ws');
+const chokidar = require('chokidar');
+
+
+const wss = new WebSocketServer({ port: 3001 });
+const watchCallbacks = [];
+
+const CONTENTS_PATH = 로컬파일위치
+chokidar.watch(CONTENTS_PATH).on('change', () => {
+  watchCallbacks.forEach(cb => cb());
+});
+
+wss.on('connection', function connection(ws) {
+  ws.on('error', console.error);
+
+  watchCallbacks.push(onChange);
+  ws.on('close', function close() {
+    const index = watchCallbacks.findIndex(onChange);
+    watchCallbacks.splice(index, 1);
+  });
+
+  function onChange() {
+    ws.send('refresh');
+  }
+});
+```
+
+그리고 `package.json` 파일에 웹소켓 서버를 실행하는 코드를 추가합니다.
+
+```json
+"scripts": {
+-  "start": "next dev",
++  "start": "concurrently \"next dev\" \"node watch-contents.js\""
+},
+```
+
+우리는 이제 MDX 파일의 변경을 감지할 수 있게 되었고, 웹소켓을 통해 변경을 전달하고 있습니다.
+
+이제 클라이언트 앱에서 전달하고 있는 변경을 받아서, Reload 시키도록 해보겠습니다.
+
+`AutoRefresh.tsx` 파일을 아래처럼 만들어주세요.
+
+해당 컴포넌트에서 웹소켓을 연결하고, `refresh` 메시지를 받으면 Next.js의 `router.reload` 메소드를 호출하여 페이지를 Reload 시킵니다.
+
+```tsx
+import { ReactNode, useEffect } from 'react';
+import { useRouter } from 'next/compat/router';
+
+interface Props {
+  children: ReactNode;
+}
+
+const isLocal = process.env.NODE_ENV === 'development'; // or 각 프로젝트마다 로컬 환경을 판단하는 방법이 다를테니 수정해주세요.
+
+const getLocalWsUrl = () => {
+  return `ws://localhost:3001`;
+};
+
+export function AutoRefresh({ children }: Props) {
+  const router = useRouter();
+  useEffect(() => {
+    if (isLocal) {
+      const ws = new WebSocket(getLocalWsUrl());
+      ws.onmessage = event => {
+        if (event.data === 'refresh') {
+          router?.reload();
+        }
+      };
+
+      return () => {
+        ws.close();
+      };
+    }
+
+    return;
+  }, [router]);
+
+  return children;
+}
+```
+
+`_app.tsx` 파일에서 `AutoRefresh` 컴포넌트를 사용하면 됩니다.
+
+```tsx
+...
+<AutoRefresh>
+  {getLayout(<Component {...pageProps} />)}
+</AutoRefresh>
+...
+```
+
+이제 MDX 파일의 변경을 감지하여 Next.js를 Reload 시킬 수 있게 되었습니다. 😄
